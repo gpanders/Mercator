@@ -1,3 +1,15 @@
+# CMake files
+build/
+build-debug/
+bulid-release/
+compile_commands.json
+
+# IDE files
+.idea/
+.clang
+.nvimrc
+tags
+
 # Prerequisites
 *.d
 

@@ -1,0 +1,4 @@
+#ifndef MERCATOR_MERCATOR_H_
+#define MERCATOR_MERCATOR_H_
+
+#endif // MERCATOR_MERCATOR_H_

@@ -12,7 +12,7 @@ ConfigManager::ConfigManager()
                      po::value<double>(&uncertainty_threshold)->required(),
                      "Maximum allowed uncertainty of the point")
                      ("min_cameras",
-                     po::value<uint8_t>(&min_cameras)->required(),
+                     po::value<uint64_t>(&min_cameras)->required(),
                      "Minimum number of cameras that see the point");
 }
 

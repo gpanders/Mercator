@@ -8,37 +8,35 @@
 namespace mercator {
 
 class Point {
-    public:
+ public:
+  Point();
 
-    Point();
+  inline Eigen::Vector3d& Coords();
+  inline const Eigen::Vector3d Coords() const;
+  inline double& Coords(const size_t idx);
+  inline const double Coords(const size_t idx) const;
+  inline void SetCoords(const Eigen::Vector3d& coords);
 
-    inline Eigen::Vector3d& Coords();
-    inline const Eigen::Vector3d Coords() const;
-    inline double& Coords(const size_t idx);
-    inline const double Coords(const size_t idx) const;
-    inline void SetCoords(const Eigen::Vector3d& coords);
+  inline Eigen::Vector3ub& Color();
+  inline const Eigen::Vector3ub Color() const;
+  inline uint8_t& Color(const size_t idx);
+  inline const uint8_t Color(const size_t idx) const;
+  inline void SetColor(const Eigen::Vector3ub& color);
 
-    inline Eigen::Vector3ub& Color();
-    inline const Eigen::Vector3ub Color() const;
-    inline uint8_t& Color(const size_t idx);
-    inline const uint8_t Color(const size_t idx) const;
-    inline void SetColor(const Eigen::Vector3ub& color);
+  inline const double Uncertainty() const;
+  inline void SetUncertainty(const double uncertainty);
 
-    inline const double Uncertainty() const;
-    inline void SetUncertainty(const double uncertainty);
+  inline const uint64_t Cameras() const;
+  inline void SetCameras(const uint64_t cameras);
 
-    inline const uint64_t Cameras() const;
-    inline void SetCameras(const uint64_t cameras);
+  inline const double Score() const;
 
-    inline const double Score() const;
-
-    private:
-
-    Eigen::Vector3d coords_;
-    Eigen::Vector3ub color_;
-    double uncertainty_;
-    uint64_t cameras_;
-    double score_;
+ private:
+  Eigen::Vector3d coords_;
+  Eigen::Vector3ub color_;
+  double uncertainty_;
+  uint64_t cameras_;
+  double score_;
 };
 
 Eigen::Vector3d& Point::Coords() { return coords_; }

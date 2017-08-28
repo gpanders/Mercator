@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 namespace mercator {
 
@@ -20,16 +21,26 @@ class Camera {
   const uint64_t Height() const;
   void SetHeight(const uint64_t height);
 
+  const Eigen::Quaterniond& Rotation() const;
+  Eigen::Quaterniond& Rotation();
+  void SetRotation(const Eigen::Quaterniond& rotation);
+
+  const Eigen::Vector3d& Translation() const;
+  Eigen::Vector3d& Translation();
+  void SetTranslation(const Eigen::Vector3d& translation);
+
   const std::vector<double> Params() const;
   std::vector<double>& Params();
   void SetParams(const std::vector<double>& params);
 
-  void WorldToImage(const Eigen::Vector3d world, Eigen::Vector2d* image);
+  void WorldToImage(const Eigen::Vector3d& world, Eigen::Vector2d* image);
 
  private:
   uint32_t camera_id_;
   uint64_t width_;
   uint64_t height_;
+  Eigen::Quaterniond rotation_;
+  Eigen::Vector3d translation_;
   std::vector<double> params_;
 
 };

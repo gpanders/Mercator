@@ -5,12 +5,6 @@ project(${PROJECT_NAME})
 
 find_package(Eigen3 REQUIRED)
 find_package(OpenMP QUIET)
-find_package(PCL
-  COMPONENTS
-  common
-  io
-  REQUIRED
-)
 find_package(Boost
   COMPONENTS
   program_options
@@ -30,12 +24,9 @@ include_directories(
     src
     ${EIGEN3_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
-    ${PCL_INCLUDE_DIRS}
 )
 
-add_definitions(${PCL_DEFINITIONS})
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
-  ${PCL_LIBRARIES}
 )

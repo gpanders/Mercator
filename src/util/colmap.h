@@ -4,11 +4,13 @@
 #include <string>
 #include <vector>
 
+#include "camera.h"
 #include "point.h"
 
 namespace mercator {
 
-bool ReadCOLMAP(const std::string& fname, std::vector<Point> *points); 
+bool ReadCOLMAP(const std::string& path,
+                std::vector<Point>* points, std::vector<Camera>* cameras);
 
 } // namespace mercator
 

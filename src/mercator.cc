@@ -1,6 +1,7 @@
 #include <iostream>
 #include <numeric>
 
+#include "camera.h"
 #include "mercator.h"
 #include "util/colmap.h"
 #include "util/config.h"

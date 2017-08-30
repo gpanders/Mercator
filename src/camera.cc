@@ -16,24 +16,6 @@ const uint64_t Camera::Height() const { return height_; }
 
 void Camera::SetHeight(const uint64_t height) { height_ = height; }
 
-const Eigen::Quaterniond& Camera::Rotation() const { return rotation_; }
-
-Eigen::Quaterniond& Camera::Rotation() { return rotation_; }
-
-void Camera::SetRotation(const Eigen::Quaterniond& rotation)
-{
-  rotation_ = rotation;
-}
-
-const Eigen::Vector3d& Camera::Translation() const { return translation_; }
-
-Eigen::Vector3d& Camera::Translation() { return translation_; }
-
-void Camera::SetTranslation(const Eigen::Vector3d& translation)
-{
-  translation_ = translation;
-}
-
 const std::vector<double> Camera::Params() const { return params_; }
 
 std::vector<double>& Camera::Params() { return params_; }
@@ -42,10 +24,6 @@ void Camera::SetParams(const std::vector<double>& params) { params_ = params; }
 
 void Camera::WorldToImage(const Eigen::Vector3d& world, Eigen::Vector2d* image)
 {
-  // Put world point in camera's reference frame
-  // TODO: Not sure if the translation should be + or -
-  const Eigen::Vector3d world_local = rotation_ * (world + translation_);
-
   // Get params from params vector
   // These could change based on the camera model being used
   const double focal_length = params_[0];
@@ -54,8 +32,8 @@ void Camera::WorldToImage(const Eigen::Vector3d& world, Eigen::Vector2d* image)
   const double radial_distortion = params_[3];
 
   // Normalize to image plane
-  const double X = world_local(0) / world_local(2);
-  const double Y = world_local(1) / world_local(2);
+  const double X = world(0) / world(2);
+  const double Y = world(1) / world(2);
 
   // Calculate radial distortion
   const double r2 = X*X + Y*Y;

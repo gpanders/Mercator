@@ -6,6 +6,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include "camera.h"
 #include "point2d.h"
 
 namespace mercator {
@@ -21,8 +22,9 @@ class Image {
   std::string& Name();
   void SetName(const std::string& name);
 
-  uint32_t CameraId() const;
-  void SetCameraId(const uint32_t camera_id);
+  const class Camera& Camera() const;
+  class Camera& Camera();
+  void SetCamera(const class Camera& camera);
 
   uint32_t NumPoints3d() const;
   void SetNumPoints3d(const uint32_t num_points_3d);
@@ -48,7 +50,7 @@ class Image {
 
   std::string name_;
 
-  uint32_t camera_id_;
+  class Camera camera_;
 
   uint32_t num_points3d_;
 

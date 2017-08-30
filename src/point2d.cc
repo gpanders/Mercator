@@ -16,7 +16,7 @@ double Point2d::Coords(const size_t idx) const { return coords_(idx); }
 
 double& Point2d::Coords(const size_t idx) { return coords_(idx); }
 
-void SetPoint2d::Coords(const Eigen::Vector2d& coords) { coords_ = coords; }
+void Point2d::SetCoords(const Eigen::Vector2d& coords) { coords_ = coords; }
 
 double Point2d::X() const { return coords_(0); }
 

@@ -1,12 +1,10 @@
 #include <iostream>
 #include <numeric>
 
-#include "camera.h"
-#include "mercator.h"
 #include "util/colmap.h"
 #include "util/config.h"
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
   if (argc != 2)
   {
@@ -14,38 +12,27 @@ int main(int argc, char * argv[])
     return 1;
   }
 
-  const std::string config_file = "config.ini";
+  // const std::string config_file = "config.ini";
 
-  mercator::ConfigManager config;
+  // mercator::ConfigManager config;
 
-  if (!config.ReadConfigFile(config_file))
-  {
-    std::cerr << "Failed to read config file: " << config_file << std::endl;
-    return 1;
-  }
+  // if (!config.ReadConfigFile(config_file))
+  // {
+  //   std::cerr << "Failed to read config file: " << config_file << std::endl;
+  //   return 1;
+  // }
 
   const std::string path = argv[1];
 
-  std::vector<mercator::Point> points;
-  std::vector<mercator::Camera> cameras;
-  if (mercator::ReadCOLMAP(path, &points, &cameras))
+  mercator::ColmapReader reader;
+
+  if (reader.Read(path))
   {
-    for (auto& point : points)
-    {
-      // Begin iteration through points
-
-      // Check uncertainty threshold
-      if (point.Uncertainty() > config.uncertainty_threshold)
-      {
-        point.SetCovered(false);
-      }
-      else if (point.Cameras() < config.min_cameras)
-      {
-        point.SetCovered(false);
-      }
-
-
-    }
+    auto& points = reader.Points();
+    auto& cameras = reader.Cameras();
+    auto& images = reader.Images();
+    std::cout << "There are " << points.size() << " 3d points and "
+              << images.size() << " images." << std::endl;
   }
   else
   {

@@ -46,79 +46,28 @@ T ReadBinary(std::istream* stream)
 
 } // namespace
 
-bool ReadCOLMAP(const std::string& path,
-                std::vector<Point>* points, std::vector<Camera>* cameras)
+ColmapReader::ColmapReader() {}
+
+bool ColmapReader::Read(const std::string& path)
 {
-  const std::string points_path = path + "/points3D.bin";
-  const std::string cameras_path = path + "/cameras.bin";
-  std::ifstream points_file(points_path, std::ios::binary);
-  std::ifstream cameras_file(cameras_path, std::ios::binary);
-
-  if (!points_file.is_open())
+  if (!points3d_.empty() || !cameras_.empty() || !images_.empty())
   {
-    std::cerr << "Could not open file " << points_path << std::endl;
-    return false;
-  }
-
-  if (!cameras_file.is_open())
-  {
-    std::cerr << "Could not open file " << cameras_path << std::endl;
-    return false;
-  }
-
-
-  if (!points->empty() || !cameras->empty())
-  {
-    std::cerr << "Reading COLMAP data failed: input vectors must be empty."
+    std::cerr << "ColmapReader instance is stale. Create a new instance to "
+              << "read new data."
               << std::endl;
     return false;
   }
 
-  // Read points
-  const auto num_points = ReadBinary<uint64_t>(&points_file);
+  return ReadCameras(path) && ReadImages(path) && ReadPoints(path);
+  
 
-  try
-  {
-    for (size_t i = 0; i < num_points; i++)
-    {
-      Point point;
-      ReadBinary<uint64_t>(&points_file); // point3d_id
-      // The first three values are the X, Y, Z coordinates of the point
-      point.Coords(0) = ReadBinary<double>(&points_file); // x
-      point.Coords(1) = ReadBinary<double>(&points_file); // y
-      point.Coords(2) = ReadBinary<double>(&points_file); // z
+  return true;
+}
 
-      // The next 3 values are the colors of the 3d point, which we are
-      // not concerned with
-      point.Color(0) = ReadBinary<uint8_t>(&points_file); // color[0] (r)
-      point.Color(1) = ReadBinary<uint8_t>(&points_file); // color[1] (g)
-      point.Color(2) = ReadBinary<uint8_t>(&points_file); // color[2] (b)
-
-      // Next is the reprojection error
-      ReadBinary<double>(&points_file); // error
-
-      // And finally the uncertainty
-      point.SetUncertainty(ReadBinary<double>(&points_file)); // uncertainty
-
-      // Next are the tracks
-      const auto track_length = ReadBinary<uint64_t>(&points_file);
-      for (size_t j = 0; j < track_length; j++)
-      {
-        ReadBinary<uint32_t>(&points_file); // image_id
-        ReadBinary<uint32_t>(&points_file); // point2d_idx
-      }
-
-      point.SetCameras(track_length);
-
-      points->push_back(point);
-    }
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Reading COLMAP points file failed. Caught exception: "
-              << e.what() << std::endl;
-    return false;
-  }
+bool ColmapReader::ReadCameras(const std::string& path)
+{
+  const std::string cameras_path = path + "/cameras.bin";
+  std::ifstream cameras_file(cameras_path, std::ios::binary);
 
   // Read cameras
   const auto num_cameras = ReadBinary<uint64_t>(&cameras_file);
@@ -136,11 +85,164 @@ bool ReadCOLMAP(const std::string& path,
       {
         camera.Params()[j] = ReadBinary<double>(&cameras_file);
       }
+      cameras_.emplace(camera.CameraId(), camera);
     }
   }
   catch (std::exception& e)
   {
     std::cerr << "Reading COLMAP cameras file failed. Caught exception: "
+              << e.what() << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+bool ColmapReader::ReadImages(const std::string& path)
+{
+  if (cameras_.empty())
+  {
+    std::cerr << "Cameras must be read before images." << std::endl;
+    return false;
+  }
+
+  const std::string images_path = path + "/images.bin";
+  std::ifstream images_file(images_path, std::ios::binary);
+
+  if (!images_file.is_open())
+  {
+    std::cerr << "Could not open file " << images_path << std::endl;
+    return false;
+  }
+
+  // Read images
+  const auto num_reg_images = ReadBinary<uint64_t>(&images_file);
+  try
+  {
+    for (size_t i = 0; i < num_reg_images; ++i)
+    {
+      Image image;
+      image.SetImageId(ReadBinary<uint32_t>(&images_file));
+
+      image.Rotation().w() = ReadBinary<double>(&images_file);
+      image.Rotation().x() = ReadBinary<double>(&images_file);
+      image.Rotation().y() = ReadBinary<double>(&images_file);
+      image.Rotation().z() = ReadBinary<double>(&images_file);
+      image.Rotation().normalize();
+
+      image.Translation()(0) = ReadBinary<double>(&images_file);
+      image.Translation()(1) = ReadBinary<double>(&images_file);
+      image.Translation()(2) = ReadBinary<double>(&images_file);
+
+      const auto camera_id = ReadBinary<uint32_t>(&images_file);
+      image.SetCamera(cameras_.at(camera_id));
+
+      char name_char;
+      do
+      {
+        images_file.read(&name_char, 1);
+        if (name_char != '\0') {
+          image.Name() += name_char;
+        }
+      } while (name_char != '\0');
+
+      const auto num_points2d = ReadBinary<uint64_t>(&images_file);
+
+      std::vector<Point2d> points2d;
+      points2d.reserve(num_points2d);
+      std::vector<uint64_t> point3d_ids;
+      point3d_ids.reserve(num_points2d);
+      for (size_t j = 0; j < num_points2d; j++)
+      {
+        const auto x = ReadBinary<double>(&images_file);
+        const auto y = ReadBinary<double>(&images_file);
+        points2d.emplace_back(x, y);
+        point3d_ids.push_back(ReadBinary<uint64_t>(&images_file));
+      }
+
+      image.SetPoints2d(points2d);
+
+      for (uint32_t point2d_idx = 0; point2d_idx < image.NumPoints2d();
+           ++point2d_idx)
+      {
+        if (point3d_ids[point2d_idx] != -1)
+        {
+          image.SetPoint3dForPoint2d(point2d_idx, point3d_ids[point2d_idx]);
+        }
+      }
+
+      images_.emplace(image.ImageId(), image);
+    }
+
+    return true;
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "Reading COLMAP images file failed. Caught exception: "
+              << e.what() << std::endl;
+    return false;
+  }
+}
+
+bool ColmapReader::ReadPoints(const std::string& path)
+{
+  if (images_.empty())
+  {
+    std::cerr << "Images must be read before points." << std::endl;
+    return false;
+  }
+
+  const std::string points3d_path = path + "/points3D.bin";
+  std::ifstream points3d_file(points3d_path, std::ios::binary);
+
+  if (!points3d_file.is_open())
+  {
+    std::cerr << "Could not open file " << points3d_path << std::endl;
+    return false;
+  }
+
+  // Read points
+  const auto num_points = ReadBinary<uint64_t>(&points3d_file);
+  try
+  {
+    for (size_t i = 0; i < num_points; i++)
+    {
+      Point3d point;
+      point.SetPoint3dId(ReadBinary<uint64_t>(&points3d_file));
+      // The first three values are the X, Y, Z coordinates of the point
+      point.Coords(0) = ReadBinary<double>(&points3d_file); // x
+      point.Coords(1) = ReadBinary<double>(&points3d_file); // y
+      point.Coords(2) = ReadBinary<double>(&points3d_file); // z
+
+      // The next 3 values are the colors of the 3d point, which we are
+      // not concerned with
+      point.Color(0) = ReadBinary<uint8_t>(&points3d_file); // color[0] (r)
+      point.Color(1) = ReadBinary<uint8_t>(&points3d_file); // color[1] (g)
+      point.Color(2) = ReadBinary<uint8_t>(&points3d_file); // color[2] (b)
+
+      // Next is the reprojection error
+      ReadBinary<double>(&points3d_file); // error
+
+      for (size_t j = 0; j < point.Covariance().size(); j++)
+      {
+        point.Covariance()(j) = ReadBinary<double>(&points3d_file);
+      }
+
+      // Next are the tracks
+      const auto track_length = ReadBinary<uint64_t>(&points3d_file);
+      for (size_t j = 0; j < track_length; j++)
+      {
+        const auto image_id = ReadBinary<uint32_t>(&points3d_file);
+        point.Images().push_back(images_.at(image_id));
+        ReadBinary<uint32_t>(&points3d_file); // point2d_idx
+      }
+
+      points3d_.emplace(point.Point3dId(), point);
+    }
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "Reading COLMAP points file failed. Caught exception: "
               << e.what() << std::endl;
     return false;
   }

@@ -22,9 +22,9 @@ class Image {
   std::string& Name();
   void SetName(const std::string& name);
 
-  const class Camera& Camera() const;
-  class Camera& Camera();
-  void SetCamera(const class Camera& camera);
+  uint32_t CameraId() const;
+  uint32_t& CameraId();
+  void SetCameraId(const uint32_t camera_id);
 
   uint32_t NumPoints3d() const;
   void SetNumPoints3d(const uint32_t num_points_3d);
@@ -50,7 +50,7 @@ class Image {
 
   std::string name_;
 
-  class Camera camera_;
+  uint32_t camera_id_;
 
   uint32_t num_points3d_;
 

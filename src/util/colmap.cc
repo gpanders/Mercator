@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "util/colmap.h"
+#include "util/types.h"
 
 namespace mercator {
 
@@ -68,6 +69,12 @@ bool ColmapReader::ReadCameras(const std::string& path)
 {
   const std::string cameras_path = path + "/cameras.bin";
   std::ifstream cameras_file(cameras_path, std::ios::binary);
+
+  if (!cameras_file.is_open())
+  {
+    std::cerr << "Couldn't open file " << cameras_path << std::endl;
+    return false;
+  }
 
   // Read cameras
   const auto num_cameras = ReadBinary<uint64_t>(&cameras_file);
@@ -134,8 +141,7 @@ bool ColmapReader::ReadImages(const std::string& path)
       image.Translation()(1) = ReadBinary<double>(&images_file);
       image.Translation()(2) = ReadBinary<double>(&images_file);
 
-      const auto camera_id = ReadBinary<uint32_t>(&images_file);
-      image.SetCamera(cameras_.at(camera_id));
+      image.SetCameraId(ReadBinary<uint32_t>(&images_file));
 
       char name_char;
       do
@@ -165,7 +171,7 @@ bool ColmapReader::ReadImages(const std::string& path)
       for (uint32_t point2d_idx = 0; point2d_idx < image.NumPoints2d();
            ++point2d_idx)
       {
-        if (point3d_ids[point2d_idx] != -1)
+        if (point3d_ids[point2d_idx] != kInvalidPoint3DId)
         {
           image.SetPoint3dForPoint2d(point2d_idx, point3d_ids[point2d_idx]);
         }
@@ -233,7 +239,7 @@ bool ColmapReader::ReadPoints(const std::string& path)
       for (size_t j = 0; j < track_length; j++)
       {
         const auto image_id = ReadBinary<uint32_t>(&points3d_file);
-        point.Images().push_back(images_.at(image_id));
+        point.ImageIds().push_back(image_id);
         ReadBinary<uint32_t>(&points3d_file); // point2d_idx
       }
 

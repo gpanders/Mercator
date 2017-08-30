@@ -40,9 +40,9 @@ class Point3d {
   Eigen::Matrix3d& Covariance();
   void SetCovariance(const Eigen::Matrix3d& covariance);
 
-  const std::vector<Image>& Images() const;
-  std::vector<Image>& Images();
-  void SetImages(const std::vector<Image>& images);
+  const std::vector<uint32_t>& ImageIds() const;
+  std::vector<uint32_t>& ImageIds();
+  void SetImageIds(const std::vector<uint32_t>& image_ids);
 
   bool Covered() const;
   void SetCovered(const bool covered);
@@ -52,7 +52,7 @@ class Point3d {
   Eigen::Vector3d coords_;
   Eigen::Vector3ub color_;
   Eigen::Matrix3d covariance_;
-  std::vector<Image> images_;
+  std::vector<uint32_t> image_ids_;
   bool covered_;
 };
 

@@ -55,13 +55,13 @@ void Point3d::SetCovariance(const Eigen::Matrix3d& covariance)
   covariance_ = covariance;
 }
 
-const std::vector<Image>& Point3d::Images() const { return images_; }
+const std::vector<uint32_t>& Point3d::ImageIds() const { return image_ids_; }
 
-std::vector<Image>& Point3d::Images() { return images_; }
+std::vector<uint32_t>& Point3d::ImageIds() { return image_ids_; }
 
-void Point3d::SetImages(const std::vector<Image>& images)
+void Point3d::SetImageIds(const std::vector<uint32_t>& image_ids)
 {
-  images_ = images;
+  image_ids_ = image_ids;
 }
 
 bool Point3d::Covered() const { return covered_; }

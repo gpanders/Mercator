@@ -23,6 +23,8 @@ void Image::SetCameraId(const uint32_t camera_id) { camera_id_ = camera_id; }
 
 uint32_t Image::NumPoints3d() const { return num_points3d_; }
 
+uint32_t& Image::NumPoints3d() { return num_points3d_; }
+
 void Image::SetNumPoints3d(const uint32_t num_points_3d) { num_points3d_ = num_points_3d; }
 
 const Eigen::Quaterniond& Image::Rotation() const { return rotation_; }
@@ -36,6 +38,11 @@ const Eigen::Vector3d& Image::Translation() const { return translation_; }
 Eigen::Vector3d& Image::Translation() { return translation_; }
 
 void Image::SetTranslation(const Eigen::Vector3d& translation) { translation_ = translation; }
+
+Eigen::Vector3d Image::Transform(const Eigen::Vector3d& point3d)
+{
+  return rotation_ * point3d + translation_;
+}
 
 const std::vector<Point2d>& Image::Points2d() const { return points2d_; }
 

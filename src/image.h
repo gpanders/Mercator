@@ -27,6 +27,7 @@ class Image {
   void SetCameraId(const uint32_t camera_id);
 
   uint32_t NumPoints3d() const;
+  uint32_t& NumPoints3d();
   void SetNumPoints3d(const uint32_t num_points_3d);
 
   const Eigen::Quaterniond& Rotation() const;
@@ -36,6 +37,8 @@ class Image {
   const Eigen::Vector3d& Translation() const;
   Eigen::Vector3d& Translation();
   void SetTranslation(const Eigen::Vector3d& translation);
+
+  Eigen::Vector3d Transform(const Eigen::Vector3d& point3d);
 
   const std::vector<Point2d>& Points2d() const;
   std::vector<Point2d>& Points2d();

@@ -5,7 +5,6 @@
 
 #include <Eigen/Core>
 
-#include "image.h"
 #include "util/types.h"
 
 namespace mercator {

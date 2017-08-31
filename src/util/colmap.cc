@@ -171,7 +171,7 @@ bool ColmapReader::ReadImages(const std::string& path)
       for (uint32_t point2d_idx = 0; point2d_idx < image.NumPoints2d();
            ++point2d_idx)
       {
-        if (point3d_ids[point2d_idx] != kInvalidPoint3DId)
+        if (point3d_ids[point2d_idx] != kInvalidPoint3dId)
         {
           image.SetPoint3dForPoint2d(point2d_idx, point3d_ids[point2d_idx]);
         }

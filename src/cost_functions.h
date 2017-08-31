@@ -10,6 +10,7 @@
 #include <Eigen/Geometry>
 
 #include "camera.h"
+#include "point2d.h"
 
 namespace mercator {
 

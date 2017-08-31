@@ -1,4 +1,4 @@
-#include <Eigen/EigenSolver>
+#include <Eigen/Eigenvalues>
 
 #include "point3d.h"
 

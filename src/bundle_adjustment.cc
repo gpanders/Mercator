@@ -21,8 +21,6 @@ void BundleAdjustment::AddImage(const Image& image)
 void BundleAdjustment::AddPoint(const Point3d& point3d)
 {
   points3d_.emplace(point3d.Point3dId(), point3d);
-  // problem_->AddResidualBlock(ReprojectionCostFunction::Create(
-  //       camera, q, T, point2d), loss_function_, point3d->Coords().data());
 }
 
 void BundleAdjustment::Run()
@@ -40,16 +38,20 @@ void BundleAdjustment::Run()
         continue;
       }
 
-      Point3d& point3d = points3d_.at(point2d.Point3dId());
-      problem_->AddResidualBlock(
-          ReprojectionCostFunction::Create(
-            camera,
-            image.second.Rotation(),
-            image.second.Translation(),
-            point2d
-          ),
-          options_.loss_function,
-          point3d.Coords().data());
+      try
+      {
+        Point3d& point3d = points3d_.at(point2d.Point3dId());
+        problem_->AddResidualBlock(
+            ReprojectionCostFunction::Create(
+              camera,
+              image.second.Rotation(),
+              image.second.Translation(),
+              point2d
+            ),
+            options_.loss_function,
+            point3d.Coords().data());
+      }
+      catch (std::out_of_range& ignored) {}
     }
   }
 

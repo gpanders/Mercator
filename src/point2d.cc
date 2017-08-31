@@ -1,4 +1,5 @@
 #include "point2d.h"
+#include "util/types.h"
 
 namespace mercator {
 
@@ -28,7 +29,7 @@ double& Point2d::Y() { return coords_(1); }
 
 uint64_t Point2d::Point3dId() const { return point3d_id_; }
 
-bool Point2d::HasPoint3d() const { return point3d_id_ != -1; }
+bool Point2d::HasPoint3d() const { return point3d_id_ != kInvalidPoint3dId; }
 
 void Point2d::SetPoint3dId(const uint64_t point3d_id)
 {

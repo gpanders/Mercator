@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 {
   if (argc != 2)
   {
-    std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <path>" << std::endl;
     return 1;
   }
 
@@ -59,13 +59,11 @@ int main(int argc, char* argv[])
     {
       const Eigen::Vector3d& xyz = point.second.Coords();
       const size_t num_cameras = point.second.ImageIds().size();
-      
+
       // If the maximum eigenvalue of the covariance matrix is less than the
       // threshold specified by the user, skip this point
-      Eigen::EigenSolver<Eigen::Matrix3d> es(point.second.Covariance(), true);
-      const auto& eigenvals = es.eigenvalues().real();
-      if (eigenvals.maxCoeff() < config.uncertainty_threshold
-          && num_cameras >= config.min_cameras)
+      if (point.second.Uncertainty() < config.uncertainty_threshold &&
+          num_cameras >= config.min_cameras)
       {
         point.second.SetCovered(true);
         continue;
@@ -76,55 +74,27 @@ int main(int argc, char* argv[])
       ba.AddCamera(camera);
       ba.AddPoint(point.second);
 
-      // Find quaternion that aligns the vector [0, 0, 1] with the minimum
-      // eigenvector
-      const auto& eigenvecs = es.eigenvectors().real();
-
-      Eigen::Vector3d::Index idx;
-      eigenvals.minCoeff(&idx);
-      const auto& min_eigenvec = eigenvecs.col(idx);
-
-      const double gsd_desired = config.min_ground_sampling_distance;
-      double distance = CalculateDistanceForGSD(camera.PixelSize(),
-          camera.Params()[0],
-          gsd_desired);
-
-      // Normalized minimum eigenvector
-      auto v = min_eigenvec.normalized();
-
-      // If following this vector the requisite distance puts us below ground
-      // level then move in the other direction
-      if ((xyz + distance * v)(2) <= 0)
+      // Add every other image that sees this point
+      for (const auto image_id : point.second.ImageIds())
       {
-        std::cout << "Flipping eigenvector." << std::endl;
-        v *= -1;
+        const Image& image = reader.Image(image_id);
+        ba.AddImage(image);
       }
 
-      const Eigen::AngleAxisd aa(
-          std::acos(v.dot(Eigen::Vector3d::UnitZ())),
-          v.cross(Eigen::Vector3d::UnitZ()).normalized());
-
-      // q is the quaternion representation of the rotation from the world 
-      // frame to the camera frame
-      Eigen::Quaterniond q(aa);
-      q.normalize();
-
-      const Eigen::Vector3d T = q * (-xyz + distance * v);
-
       Image new_image;
-
       new_image.SetCameraId(camera.CameraId());
-      new_image.SetRotation(q);
-      new_image.SetTranslation(T);
 
-      Eigen::Vector3d xyz_local = new_image.Transform(xyz);
+      CreateVirtualCameraForPoint(
+          point.second,
+          camera,
+          config.min_ground_sampling_distance,
+          0,
+          &new_image);
 
-      Point2d point2d;
-      Camera::WorldToImage(camera.Params().data(), xyz_local.data(),
-          point2d.Coords().data());
-
-      new_image.Points2d().push_back(point2d);
-      new_image.NumPoints3d() += 1;
+      if (!ProjectPointOntoImage(point.second, camera, &new_image))
+      {
+        continue;
+      }
 
       for (const auto& other_point : reader.Points())
       {
@@ -133,26 +103,15 @@ int main(int argc, char* argv[])
           continue;
         }
 
-        const Eigen::Vector3d& other_xyz = other_point.second.Coords();
-
-        Point2d point2d;
-        Eigen::Vector3d other_point_local = new_image.Transform(other_xyz);
-        Camera::WorldToImage(camera.Params().data(),
-            other_point_local.data(),
-            point2d.Coords().data());
-
-        if (point2d.X() < 0 || point2d.X() > camera.Width()
-            || point2d.Y() < 0 || point2d.Y() > camera.Height())
+        if (ProjectPointOntoImage(other_point.second, camera, &new_image))
         {
-          // Skip points that don't fit in the camera frame
-          continue;
+          ba.AddPoint(other_point.second);
         }
-
-        ba.AddPoint(other_point.second);
-        point2d.SetPoint3dId(other_point.second.Point3dId());
-        new_image.Points2d().push_back(point2d);
-        new_image.NumPoints3d() += 1;
       }
+
+      ba.Run();
+
+      ba.PrintSummary(true);
 
       break;
     }
@@ -166,6 +125,16 @@ int main(int argc, char* argv[])
   return 0;
 }
 
+/**
+ * Calculate the ground sampling distance of an image taken from a given
+ * distance
+ *
+ * @param pixel_size_mm   The physical size of each pixel of the camera, in mm
+ * @param focal_length_mm Focal length of the camera, in mm
+ * @param distance_m      Camera's distance from the desired object, in m
+ *
+ * @return                Ground sampling distance, in cm
+ */
 double CalculateGroundSamplingDistance(const double pixel_size_mm,
                                        const double focal_length_mm,
                                        const double distance_m)
@@ -173,9 +142,110 @@ double CalculateGroundSamplingDistance(const double pixel_size_mm,
   return (pixel_size_mm * (distance_m * 1000) / focal_length_mm) / 10;
 }
 
+/**
+ * Calculate the maximum distance (or altitude) an image can be while
+ * maintaining a desired ground sampling distance.
+ *
+ * @param pixel_size_mm   The physical size of each pixel of the camera, in mm
+ * @param focal_length_mm Focal length of the camera, in mm
+ * @param gsd_cm          The minimum ground sampling distance, in cm
+ *
+ * @return                Maximum distance, in m
+ */
 double CalculateDistanceForGSD(const double pixel_size_mm,
                                const double focal_length_mm,
                                const double gsd_cm)
 {
   return (((gsd_cm * 10) * focal_length_mm) / pixel_size_mm) / 1000;
 }
+
+/**
+ * Calculate the rotation and translation of an imaginary camera located along
+ * the eigenvector corresponding to the minimum eigenvalue, with an optional
+ * angle offset.
+ *
+ * @param point3d     3D point under consideration
+ * @param camera      A Camera object containing intrinsic parameters
+ * @param gsd         The minimum ground sampling distance constraint 
+ * @param angle       An angle offset (in radians) from the eigenvector axis
+ * @param image       Pointer to an Image acting as a virtual camera whose
+ *                    Rotation and Translation will be set 
+ */
+void CreateVirtualCameraForPoint(const Point3d& point3d,
+                                 const Camera& camera,
+                                 const double gsd,
+                                 const double angle,
+                                 Image* image)
+{
+  Eigen::EigenSolver<Eigen::Matrix3d> es(point3d.Covariance(), true);
+
+  // Find eigenvector corresponding to smallest eigenvalue
+  const auto& eigenvals = es.eigenvalues().real();
+  const auto& eigenvecs = es.eigenvectors().real();
+
+  Eigen::Vector3d::Index idx;
+  eigenvals.minCoeff(&idx);
+  const Eigen::Vector3d& min_eigenvec = eigenvecs.col(idx);
+
+  // Calculate the maximum distance the camera can be from the point while
+  // still meeting the ground sampling distance criteria
+  double distance = CalculateDistanceForGSD(camera.PixelSize(),
+      camera.Params()[0],
+      gsd);
+
+  // Normalized minimum eigenvector
+  auto v = min_eigenvec.normalized();
+
+  // If following this vector the requisite distance puts us below ground
+  // level then move in the other direction
+  if ((point3d.Coords() + distance * v)(2) <= 0)
+  {
+    v *= -1;
+  }
+
+  // Create angle-axis representation of rotation
+  const Eigen::AngleAxisd aa(
+      std::acos(v.dot(Eigen::Vector3d::UnitZ())) + angle,
+      v.cross(Eigen::Vector3d::UnitZ()).normalized());
+
+  // q is the quaternion representation of the rotation from the world
+  // frame to the camera frame
+  Eigen::Quaterniond q(aa);
+  q.normalize();
+
+  const Eigen::Vector3d T = q * (-point3d.Coords() + distance * v);
+
+  image->SetRotation(q);
+  image->SetTranslation(T);
+}
+
+/**
+ * Project a 3D point onto an image
+ *
+ * @param point3d     The 3D point in the _reference_ frame
+ * @param camera      A Camera object containing intrinsic parameters
+ * @param image       Pointer to the Image to be projected onto
+ *
+ * @return            True if the projected point is visible in the camera's
+ *                    frame
+ */
+bool ProjectPointOntoImage(const Point3d& point3d,
+                           const Camera& camera,
+                           mercator::Image* image)
+{
+  Eigen::Vector3d point3d_local = image->Transform(point3d.Coords());
+  Point2d point2d;
+  Camera::WorldToImage(camera.Params(), point3d_local, &point2d.Coords());
+
+  if (point2d.X() >= 0 && point2d.X() <= camera.Width()
+      && point2d.Y() >= 0 && point2d.Y() <= camera.Height())
+  {
+    point2d.SetPoint3dId(point3d.Point3dId());
+    image->Points2d().push_back(point2d);
+    image->NumPoints3d() += 1;
+    return true;
+  }
+
+  return false;
+}
+

@@ -35,6 +35,10 @@ class Camera {
   static void WorldToImage(const T* const params, const T* const world,
                            T* image);
 
+  static void WorldToImage(const std::vector<double> params,
+                           const Eigen::Vector3d& world,
+                           Eigen::Vector2d* image);
+
  private:
   uint32_t camera_id_;
   uint64_t width_; // px

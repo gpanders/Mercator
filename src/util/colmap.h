@@ -33,9 +33,9 @@ class ColmapReader {
   bool ReadImages(const std::string& path);
   bool ReadPoints(const std::string& path);
 
-  std::map<uint32_t, Camera> cameras_;
+  std::map<uint32_t, class Camera> cameras_;
 
-  std::map<uint32_t, Image> images_;
+  std::map<uint32_t, class Image> images_;
 
   std::map<uint64_t, Point3d> points3d_;
 };

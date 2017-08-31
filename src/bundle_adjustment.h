@@ -10,6 +10,7 @@
 #include <Eigen/Core>
 
 #include "cost_functions.h"
+#include "image.h"
 #include "point2d.h"
 #include "point3d.h"
 

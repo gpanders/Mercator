@@ -82,7 +82,7 @@ bool ColmapReader::ReadCameras(const std::string& path)
   {
     for (size_t i = 0; i < num_cameras; i++)
     {
-      Camera camera;
+      class Camera camera;
       camera.SetCameraId(ReadBinary<uint32_t>(&cameras_file));
       ReadBinary<int>(&cameras_file); // model_id
       camera.SetWidth(ReadBinary<uint64_t>(&cameras_file));
@@ -128,7 +128,7 @@ bool ColmapReader::ReadImages(const std::string& path)
   {
     for (size_t i = 0; i < num_reg_images; ++i)
     {
-      Image image;
+      class Image image;
       image.SetImageId(ReadBinary<uint32_t>(&images_file));
 
       image.Rotation().w() = ReadBinary<double>(&images_file);

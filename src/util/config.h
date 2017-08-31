@@ -13,6 +13,8 @@ class ConfigManager {
   bool ReadConfigFile(const std::string&);
 
   double uncertainty_threshold;
+  double camera_pixel_size;
+  double min_ground_sampling_distance;
   uint64_t min_cameras;
 
  private:

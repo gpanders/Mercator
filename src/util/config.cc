@@ -13,7 +13,13 @@ ConfigManager::ConfigManager()
                      "Maximum allowed uncertainty of the point")
                      ("min_cameras",
                      po::value<uint64_t>(&min_cameras)->required(),
-                     "Minimum number of cameras that see the point");
+                     "Minimum number of cameras that see the point")
+                     ("camera_pixel_size",
+                     po::value<double>(&camera_pixel_size)->required(),
+                     "Size (in mm) of each camera pixel")
+                     ("min_ground_sampling_distance",
+                     po::value<double>(&min_ground_sampling_distance)->required(),
+                     "Ground sampling distance requirement");
 }
 
 bool ConfigManager::ReadConfigFile(const std::string& path)

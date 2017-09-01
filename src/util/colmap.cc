@@ -229,10 +229,13 @@ bool ColmapReader::ReadPoints(const std::string& path)
       // Next is the reprojection error
       ReadBinary<double>(&points3d_file); // error
 
-      for (size_t j = 0; j < point.Covariance().size(); j++)
+      Eigen::Matrix3d covariance;
+      for (size_t j = 0; j < covariance.size(); j++)
       {
-        point.Covariance()(j) = ReadBinary<double>(&points3d_file);
+        covariance(j) = ReadBinary<double>(&points3d_file);
       }
+
+      point.SetCovariance(covariance);
 
       // Next are the tracks
       const auto track_length = ReadBinary<uint64_t>(&points3d_file);

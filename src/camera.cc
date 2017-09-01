@@ -2,7 +2,11 @@
 
 namespace mercator {
 
-Camera::Camera() : camera_id_(-1), width_(0), height_(0), params_(4, 0) {}
+Camera::Camera() : camera_id_(-1),
+                   width_(0),
+                   height_(0),
+                   pixel_size_(0),
+                   params_(4, 0) {}
 
 uint32_t Camera::CameraId() const { return camera_id_; }
 

@@ -50,6 +50,16 @@ class Camera {
 
 };
 
+/**
+ * Project a 3D point onto a 2D image plane using a given camera model
+ *
+ * @param params          Array of values representing the camera model
+ *                        [focal_length, cx, cy, radial_distortion]
+ * @param world           Array of length 3 representing the 3D Cartesian
+ *                        coordinates of the world point
+ * @param image           Array of length 2 representing the 2D coordinates of
+ *                        the point in the image plane
+ */
 template<typename T>
 void Camera::WorldToImage(const T* const params, const T* const world,
                           T* image)

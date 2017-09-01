@@ -1,9 +1,6 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <unordered_map>
-
-#include <ceres/ceres.h>
 
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
@@ -13,7 +10,6 @@
 
 #include "mercator.h"
 #include "bundle_adjustment.h"
-#include "cost_functions.h"
 
 using namespace mercator;
 
@@ -168,7 +164,7 @@ double CalculateGroundSamplingDistance(const double pixel_size_mm,
  * @param focal_length_mm Focal length of the camera, in mm
  * @param gsd_cm          The minimum ground sampling distance, in cm
  *
- * @return                Maximum distance, in m
+ * @return                Maximum distance, in meters
  */
 double CalculateDistanceForGSD(const double pixel_size_mm,
                                const double focal_length_mm,

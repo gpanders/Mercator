@@ -60,6 +60,6 @@ class Point3d {
   bool covered_;
 };
 
-}
+} // namespace mercator
 
 #endif // MERCATOR_POINT3D_H_

@@ -36,4 +36,4 @@ void Point2d::SetPoint3dId(const uint64_t point3d_id)
   point3d_id_ = point3d_id;
 }
 
-}
+} // namespace mercator

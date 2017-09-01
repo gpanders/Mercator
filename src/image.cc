@@ -2,8 +2,9 @@
 
 namespace mercator {
 
-Image::Image()
-  : image_id_(-1), camera_id_(-1), num_points3d_(0) {}
+Image::Image() : image_id_(-1),
+                 camera_id_(-1),
+                 num_points3d_(0) {}
 
 uint32_t Image::ImageId() const { return image_id_; }
 

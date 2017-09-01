@@ -91,6 +91,6 @@ class BundleAdjustment {
 
 };
 
-}
+} // namespace mercator
 
 #endif // MERCATOR_BUNDLE_ADJUSTMENT_H_

@@ -25,6 +25,6 @@ class ConfigManager {
 
 };
 
-}
+} // namespace mercator
 
 #endif // MERCATOR_UTIL_CONFIG_H_

@@ -16,6 +16,7 @@ class ConfigManager {
   double camera_pixel_size;
   double min_ground_sampling_distance;
   uint64_t min_cameras;
+  short print_ba_summary;
 
  private:
 

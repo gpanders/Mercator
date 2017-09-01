@@ -19,7 +19,10 @@ ConfigManager::ConfigManager()
                      "Size (in mm) of each camera pixel")
                      ("min_ground_sampling_distance",
                      po::value<double>(&min_ground_sampling_distance)->required(),
-                     "Ground sampling distance requirement");
+                     "Ground sampling distance requirement")
+                     ("print_ba_summary",
+                     po::value<short>(&print_ba_summary),
+                     "Print a summary of the bundle adjustment (0, 1, or 2)");
 }
 
 bool ConfigManager::ReadConfigFile(const std::string& path)

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <unordered_map>
@@ -34,13 +35,11 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  const std::string path = argv[1];
-
   BundleAdjustment::Options ba_options;
 
   ColmapReader reader;
 
-  if (reader.Read(path))
+  if (reader.Read(argv[1]))
   {
     auto& cameras = reader.Cameras();
     if (cameras.size() > 1)
@@ -65,6 +64,8 @@ int main(int argc, char* argv[])
       if (point.second.Uncertainty() < config.uncertainty_threshold &&
           num_cameras >= config.min_cameras)
       {
+        std::cout << "Point " << point.second.Point3dId()
+                  << " is already covered, skipping..." << std::endl;
         point.second.SetCovered(true);
         continue;
       }
@@ -103,15 +104,32 @@ int main(int argc, char* argv[])
           continue;
         }
 
-        if (ProjectPointOntoImage(other_point.second, camera, &new_image))
+        // If this point is visible in any of the images in the bundle
+        // adjustment, add it to the BA
+        const auto& image_ids = other_point.second.ImageIds();
+        if (std::any_of(image_ids.begin(), image_ids.end(),
+              [&ba](uint32_t image_id) { return ba.HasImage(image_id); }))
+        {
+          ba.AddPoint(other_point.second);
+        }
+        // Otherwise, if the projection of this point onto our virtual camera
+        // exists in the virtual camera's frame, add it to the BA
+        else if (ProjectPointOntoImage(other_point.second, camera, &new_image))
         {
           ba.AddPoint(other_point.second);
         }
       }
 
+      // Add our new virtual camera to the bundle adjustment
+      ba.AddImage(new_image);
+
+      // Start the bundle adjustment
       ba.Run();
 
-      ba.PrintSummary(true);
+      if (config.print_ba_summary > 0)
+      {
+        ba.PrintSummary(config.print_ba_summary == 2);
+      }
 
       break;
     }

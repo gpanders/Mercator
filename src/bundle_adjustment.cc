@@ -23,10 +23,24 @@ void BundleAdjustment::AddPoint(const Point3d& point3d)
   points3d_.emplace(point3d.Point3dId(), point3d);
 }
 
+bool BundleAdjustment::HasCamera(const uint32_t camera_id) const
+{
+  return cameras_.count(camera_id) > 0;
+}
+
+bool BundleAdjustment::HasImage(const uint32_t image_id) const
+{
+  return images_.count(image_id) > 0;
+}
+
+bool BundleAdjustment::HasPoint(const uint64_t point3d_id) const
+{
+  return points3d_.count(point3d_id) > 0;
+}
+
 void BundleAdjustment::Run()
 {
-  problem_.reset();
-  summary_.reset();
+  problem_.reset(new ceres::Problem());
 
   for (const auto& image : images_)
   {
@@ -69,7 +83,7 @@ void BundleAdjustment::Run()
 #endif
     }
 
-    ceres::Solve(solver_options, problem_.get(), summary_.get());
+    ceres::Solve(solver_options, problem_.get(), &summary_);
   }
 
 }
@@ -109,13 +123,13 @@ void BundleAdjustment::ComputeCovariance(std::vector<Point3d>* points)
 void BundleAdjustment::PrintSummary(const bool print_full_report)
 {
   const std::string report = print_full_report
-    ? summary_->FullReport() : summary_->BriefReport();
+    ? summary_.FullReport() : summary_.BriefReport();
   std::cout << report << std::endl;
 }
 
-const ceres::Solver::Summary BundleAdjustment::Summary() const
+const ceres::Solver::Summary& BundleAdjustment::Summary() const
 {
-  return *summary_;
+  return summary_;
 }
 
 }

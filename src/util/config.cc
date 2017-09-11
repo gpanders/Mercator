@@ -1,4 +1,5 @@
 #include <fstream>
+#include <sstream>
 
 #include "util/config.h"
 
@@ -37,6 +38,18 @@ bool ConfigManager::ReadConfigFile(const std::string& path)
   po::notify(vmap_);
 
   return true;
+}
+
+const std::string ConfigManager::PrintOptions() const
+{
+  std::ostringstream ss;
+  ss << "Using configuration:\n"
+    << "uncertainty_threshold = " << uncertainty_threshold << "\n"
+    << "min_cameras = " << min_cameras << "\n"
+    << "camera_pixel_size = " << camera_pixel_size << "\n"
+    << "min_ground_sampling_distance = " << min_ground_sampling_distance << "\n"
+    << "print_ba_summary = " << print_ba_summary << "\n";
+  return ss.str();
 }
 
 } // namespace mercator

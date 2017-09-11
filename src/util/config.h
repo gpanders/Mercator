@@ -12,6 +12,8 @@ class ConfigManager {
 
   bool ReadConfigFile(const std::string&);
 
+  const std::string PrintOptions() const;
+
   double uncertainty_threshold;
   double camera_pixel_size;
   double min_ground_sampling_distance;
@@ -19,7 +21,6 @@ class ConfigManager {
   short print_ba_summary;
 
  private:
-
   boost::program_options::options_description desc_;
   boost::program_options::variables_map vmap_;
 

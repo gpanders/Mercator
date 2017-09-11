@@ -7,6 +7,7 @@
 
 #include "util/colmap.h"
 #include "util/config.h"
+#include "util/logger.h"
 
 #include "mercator.h"
 #include "bundle_adjustment.h"
@@ -21,15 +22,19 @@ int main(int argc, char* argv[])
     return 1;
   }
 
+  const Logger logger(Logger::LogLevel::DEBUG);
+
   const std::string config_file = "config.ini";
 
   ConfigManager config;
 
   if (!config.ReadConfigFile(config_file))
   {
-    std::cerr << "Failed to read config file: " << config_file << std::endl;
+    logger.Error("Failed to read config file: ") << config_file << std::endl;
     return 1;
   }
+
+  logger.Debug(config.PrintOptions());
 
   BundleAdjustment::Options ba_options;
 
@@ -37,11 +42,17 @@ int main(int argc, char* argv[])
 
   if (reader.Read(argv[1]))
   {
+    logger.Debug() << "Successfully imported "
+      << reader.Points().size() << " points, "
+      << reader.Cameras().size() << " cameras, "
+      << reader.Images().size() << " images."
+      << std::endl;
+
     auto& cameras = reader.Cameras();
     if (cameras.size() > 1)
     {
-      std::cout << "WARNING: More than one camera given! Defaulting to the "
-                << "first." << std::endl;
+      logger.Warn("More than one camera found! Defaulting to the first.")
+        << std::endl;
     }
 
     Camera& camera = cameras.begin()->second;
@@ -52,7 +63,6 @@ int main(int argc, char* argv[])
     // Iterate over each point
     for (auto& point : reader.Points())
     {
-      const Eigen::Vector3d& xyz = point.second.Coords();
       const size_t num_cameras = point.second.ImageIds().size();
 
       // If the maximum eigenvalue of the covariance matrix is less than the
@@ -60,11 +70,16 @@ int main(int argc, char* argv[])
       if (point.second.Uncertainty() < config.uncertainty_threshold &&
           num_cameras >= config.min_cameras)
       {
-        std::cout << "Point " << point.second.Point3dId()
-                  << " is already covered, skipping..." << std::endl;
+        logger.Debug() << "Point " << point.second.Point3dId()
+                       << " is already covered, skipping..." << std::endl;
         point.second.SetCovered(true);
         continue;
       }
+
+      const uint64_t point3d_id = point.second.Point3dId();
+      const Eigen::Vector3d& xyz = point.second.Coords();
+
+      logger.Debug("Using point ") << point3d_id;
 
       // Otherwise, prepare for a new bundle adjustment
       BundleAdjustment ba(ba_options);
@@ -74,6 +89,9 @@ int main(int argc, char* argv[])
       // Add every other image that sees this point
       for (const auto image_id : point.second.ImageIds())
       {
+        logger.Debug() << "Point " << point3d_id << " sees image " << image_id
+                       << ", adding to bundle adjustment..." << std::endl;
+
         const Image& image = reader.Image(image_id);
         ba.AddImage(image);
       }
@@ -90,12 +108,13 @@ int main(int argc, char* argv[])
 
       if (!ProjectPointOntoImage(point.second, camera, &new_image))
       {
+        logger.Warn("Projecting point onto virtual image failed!") << std::endl;
         continue;
       }
 
       for (const auto& other_point : reader.Points())
       {
-        if (other_point.second.Point3dId() == point.second.Point3dId())
+        if (other_point.second.Point3dId() == point3d_id)
         {
           continue;
         }

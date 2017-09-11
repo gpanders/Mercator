@@ -18,8 +18,10 @@ set(
     ${PROJECT_SOURCE_DIR}/src/bundle_adjustment.cc
     ${PROJECT_SOURCE_DIR}/src/point2d.cc
     ${PROJECT_SOURCE_DIR}/src/util/colmap.h
+    ${PROJECT_SOURCE_DIR}/src/util/logger.h
     ${PROJECT_SOURCE_DIR}/src/util/types.h
     ${PROJECT_SOURCE_DIR}/src/util/config.h
+    ${PROJECT_SOURCE_DIR}/src/util/logger.cc
     ${PROJECT_SOURCE_DIR}/src/util/config.cc
     ${PROJECT_SOURCE_DIR}/src/util/colmap.cc
 )

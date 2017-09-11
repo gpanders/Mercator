@@ -72,6 +72,12 @@ class BundleAdjustment {
 
   bool HasPoint(const uint64_t point3d_id) const;
 
+  const std::unordered_map<uint32_t, Camera>& Cameras() const;
+
+  const std::unordered_map<uint32_t, Image>& Images() const;
+
+  const std::unordered_map<uint64_t, Point3d>& Points() const;
+
   void Run();
 
   void ComputeCovariance(std::vector<Point3d>* points);

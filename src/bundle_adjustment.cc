@@ -38,6 +38,21 @@ bool BundleAdjustment::HasPoint(const uint64_t point3d_id) const
   return points3d_.count(point3d_id) > 0;
 }
 
+const std::unordered_map<uint32_t, Camera>& BundleAdjustment::Cameras() const
+{
+  return cameras_;
+}
+
+const std::unordered_map<uint32_t, Image>& BundleAdjustment::Images() const
+{
+  return images_;
+}
+
+const std::unordered_map<uint64_t, Point3d>& BundleAdjustment::Points() const
+{
+  return points3d_;
+}
+
 void BundleAdjustment::Run()
 {
   problem_.reset(new ceres::Problem());

@@ -39,3 +39,10 @@ Schönberger has done with [COLMAP](https://github.com/colmap/colmap).
 This project is written and maintained by the [University of Texas
 Radionavigation Lab](https://rnl.ae.utexas.edu) and is licensed under the [MIT
 License](https://github.com/radionavlab/mercator/blob/master/LICENSE).
+
+#### Contributing ####
+
+Contributions are welcome. Code must adhere to the [C++ Google style
+guide](https://google.github.io/styleguide/cppguide.html). When you create a
+new file, put your name in the author line so those who come after you know
+where to direct questions.

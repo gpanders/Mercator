@@ -1,3 +1,10 @@
+/**
+ *  @file   point3d.h
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Class to represent a 3D world point
+ */
 #ifndef MERCATOR_POINT3D_H_
 #define MERCATOR_POINT3D_H_
 

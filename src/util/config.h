@@ -1,3 +1,10 @@
+/**
+ *  @file   config.h
+ *  @author Greg Anders
+ *  @date   9/11/2017
+ *
+ *  @brief  Manage user supplied config options
+ */
 #ifndef MERCATOR_UTIL_CONFIG_H_
 #define MERCATOR_UTIL_CONFIG_H_
 

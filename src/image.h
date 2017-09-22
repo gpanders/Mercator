@@ -1,3 +1,10 @@
+/**
+ *  @file   image.h
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Class to represent a camera image
+ */
 #ifndef MERCATOR_IMAGE_H_
 #define MERCATOR_IMAGE_H_
 

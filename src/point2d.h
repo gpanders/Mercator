@@ -1,3 +1,10 @@
+/**
+ *  @file   point2d.h
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Class to represent a 2D image point
+ */
 #ifndef MERCATOR_POINT2D_H_
 #define MERCATOR_POINT2D_H_
 

@@ -1,3 +1,10 @@
+/**
+ *  @file   logger.h
+ *  @author Greg Anders
+ *  @date   9/11/2017
+ *
+ *  @brief  Class for logging
+ */
 #ifndef MERCATOR_LOGGER_H
 #define MERCATOR_LOGGER_H
 

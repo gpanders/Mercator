@@ -1,3 +1,10 @@
+/**
+ *  @file   mercator.h
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Declaration of functions used in main program
+ */
 #ifndef MERCATOR_H_
 #define MERCATOR_H_
 

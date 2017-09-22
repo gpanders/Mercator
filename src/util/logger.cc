@@ -1,3 +1,10 @@
+/**
+ *  @file   logger.cc
+ *  @author Greg Anders
+ *  @date   9/11/2017
+ *
+ *  @brief  Implementation of logging class
+ */
 #include "logger.h"
 
 namespace mercator {

@@ -1,3 +1,10 @@
+/**
+ *  @file   types.h
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Handy type definitions
+ */
 #ifndef MERCATOR_TYPES_H_
 #define MERCATOR_TYPES_H_
 

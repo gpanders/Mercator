@@ -1,3 +1,10 @@
+/**
+ *  @file   cost_functions.h
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Cost functions to use in bundle adjustment
+ */
 #ifndef MERCATOR_COST_FUNCTIONS_H_
 #define MERCATOR_COST_FUNCTIONS_H_
 

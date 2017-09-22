@@ -1,3 +1,10 @@
+/**
+ *  @file   bundle_adjustment.cc
+ *  @author Greg Anders
+ *  @date   9/8/2017
+ *
+ *  @brief  Bundle adjustment class
+ */
 #include <iostream>
 #include <string>
 

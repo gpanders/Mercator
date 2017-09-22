@@ -1,3 +1,10 @@
+/**
+ *  @file   colmap.h
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Class to read binary COLMAP data
+ */
 #ifndef MERCATOR_COLMAP_H_
 #define MERCATOR_COLMAP_H_
 

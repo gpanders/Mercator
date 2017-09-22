@@ -1,3 +1,10 @@
+/**
+ *  @file   config.cc
+ *  @author Greg Anders
+ *  @date   9/11/2017
+ *
+ *  @brief  Implementation of config manager
+ */
 #include <fstream>
 #include <sstream>
 

@@ -1,3 +1,10 @@
+/**
+ *  @file   bundle_adjustment.h
+ *  @author Greg Anders
+ *  @date   9/8/2017
+ *
+ *  @brief  Bundle adjustment class
+ */
 #ifndef MERCATOR_BUNDLE_ADJUSTMENT_H_
 #define MERCATOR_BUNDLE_ADJUSTMENT_H_
 

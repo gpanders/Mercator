@@ -1,3 +1,10 @@
+/**
+ *  @file   colmap.cc
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Implementation of COLMAP class
+ */
 #include <algorithm> // std::reverse
 #include <exception>
 #include <fstream>

@@ -1,3 +1,10 @@
+/**
+ *  @file   point2d.cc
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Class to represent a 2D image point
+ */
 #include "point2d.h"
 #include "util/types.h"
 

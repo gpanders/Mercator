@@ -1,3 +1,10 @@
+/**
+ *  @file   mercator.cc
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Main program
+ */
 #include <algorithm>
 #include <cmath>
 #include <iostream>

@@ -1,3 +1,10 @@
+/**
+ *  @file   camera.cc
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Class to represent a camera model
+ */
 #include "camera.h"
 
 namespace mercator {

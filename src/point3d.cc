@@ -1,3 +1,10 @@
+/**
+ *  @file   point3d.cc
+ *  @author Greg Anders
+ *  @date   8/31/2017
+ *
+ *  @brief  Class to represent a 3D world point
+ */
 #include <Eigen/Eigenvalues>
 
 #include "point3d.h"

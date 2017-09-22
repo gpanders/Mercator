@@ -36,6 +36,9 @@
 
 namespace mercator {
 
+// Cost function to use with Ceres. Calculates the residuals between the
+// projected position of 3D points onto the camera frame and the corresponding
+// image points
 class ReprojectionCostFunction {
  public:
   ReprojectionCostFunction(const Camera& camera,

@@ -112,4 +112,4 @@ std::ostream& Logger::Error(const std::string& msg) const
   return null_;
 }
 
-} /* mercator  */ 
+} // namespace mercator

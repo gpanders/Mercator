@@ -60,29 +60,35 @@ class Image {
   Eigen::Vector3d& Translation();
   void SetTranslation(const Eigen::Vector3d& translation);
 
-  Eigen::Vector3d Transform(const Eigen::Vector3d& point3d);
-
   const std::vector<Point2d>& Points2d() const;
   std::vector<Point2d>& Points2d();
   void SetPoints2d(const std::vector<Point2d>& points2d);
   uint32_t NumPoints2d() const;
 
+  Eigen::Vector3d Transform(const Eigen::Vector3d& point3d);
   void SetPoint3dForPoint2d(const uint32_t point2d_idx,
                             const uint64_t point3d_id);
 
  private:
+  // The unique ID of this image
   uint32_t image_id_;
 
+  // The file name associated with this image
   std::string name_;
 
+  // The unique camera ID of the camera that took this image
   uint32_t camera_id_;
 
+  // How many 3D world points this image observes
   uint32_t num_points3d_;
 
+  // Rotation from the world frame to the image frame
   Eigen::Quaterniond rotation_;
 
+  // Translation from the world frame to the image frame
   Eigen::Vector3d translation_;
 
+  // List of image points
   std::vector<Point2d> points2d_;
 };
 

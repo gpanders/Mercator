@@ -109,12 +109,21 @@ class BundleAdjustment {
   const ceres::Solver::Summary& Summary() const;
 
  private:
+  // Smart pointer to the Ceres Problem object
   std::unique_ptr<ceres::Problem> problem_;
+
+  // Ceres summary
   ceres::Solver::Summary summary_;
+
   const Options options_;
 
+  // Map of cameras participating in the bundle adjustment
   std::unordered_map<uint32_t, Camera> cameras_;
+
+  // Map of images participating in the bundle adjustment
   std::unordered_map<uint32_t, Image> images_;
+
+  // Map of 3D points participating in the bundle adjustment
   std::unordered_map<uint64_t, Point3d> points3d_;
 
 };

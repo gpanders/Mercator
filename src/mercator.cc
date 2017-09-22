@@ -180,16 +180,10 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-/**
- * Calculate the ground sampling distance of an image taken from a given
- * distance
- *
- * @param pixel_size_mm   The physical size of each pixel of the camera, in mm
- * @param focal_length_mm Focal length of the camera, in mm
- * @param distance_m      Camera's distance from the desired object, in m
- *
- * @return                Ground sampling distance, in cm
- */
+// Calculate the ground sampling distance of an image taken from a given
+// distance. Function inputs are the pixel size of the camera (in mm), the
+// camera focal length (in mm), and the camera's distance from the object
+// (in meters). Returns the ground sampling distance (in cm).
 double CalculateGroundSamplingDistance(const double pixel_size_mm,
                                        const double focal_length_mm,
                                        const double distance_m)
@@ -197,16 +191,11 @@ double CalculateGroundSamplingDistance(const double pixel_size_mm,
   return (pixel_size_mm * (distance_m * 1000) / focal_length_mm) / 10;
 }
 
-/**
- * Calculate the maximum distance (or altitude) an image can be while
- * maintaining a desired ground sampling distance.
- *
- * @param pixel_size_mm   The physical size of each pixel of the camera, in mm
- * @param focal_length_mm Focal length of the camera, in mm
- * @param gsd_cm          The minimum ground sampling distance, in cm
- *
- * @return                Maximum distance, in meters
- */
+// Calculate the maximum distance (or altitude) an image can be while
+// maintaining a desired ground sampling distance. Function inputs are the
+// pixel size of the camera (in mm), the camera focal length (in mm), and the
+// minimum acceptable ground sampling distance (in cm). Returns the maximum
+// distance to the object (in meters).
 double CalculateDistanceForGSD(const double pixel_size_mm,
                                const double focal_length_mm,
                                const double gsd_cm)
@@ -214,18 +203,9 @@ double CalculateDistanceForGSD(const double pixel_size_mm,
   return (((gsd_cm * 10) * focal_length_mm) / pixel_size_mm) / 1000;
 }
 
-/**
- * Calculate the rotation and translation of an imaginary camera located along
- * the eigenvector corresponding to the minimum eigenvalue, with an optional
- * angle offset.
- *
- * @param point3d     3D point under consideration
- * @param camera      A Camera object containing intrinsic parameters
- * @param gsd         The minimum ground sampling distance constraint 
- * @param angle       An angle offset (in radians) from the eigenvector axis
- * @param image       Pointer to an Image acting as a virtual camera whose
- *                    Rotation and Translation will be set 
- */
+// Calculate the rotation and translation of an imaginary camera located along
+// the eigenvector corresponding to the minimum eigenvalue, with an optional
+// angle offset.
 void CreateVirtualCameraForPoint(const Point3d& point3d,
                                  const Camera& camera,
                                  const double gsd,
@@ -274,16 +254,9 @@ void CreateVirtualCameraForPoint(const Point3d& point3d,
   image->SetTranslation(T);
 }
 
-/**
- * Project a 3D point onto an image
- *
- * @param point3d     The 3D point in the _reference_ frame
- * @param camera      A Camera object containing intrinsic parameters
- * @param image       Pointer to the Image to be projected onto
- *
- * @return            True if the projected point is visible in the camera's
- *                    frame
- */
+// Project a 3D point onto an image. The coordinates of the input point are in
+// the world reference frame. The projected point will be added to the list of
+// 2D points in the given Image object.
 bool ProjectPointOntoImage(const Point3d& point3d,
                            const Camera& camera,
                            mercator::Image* image)

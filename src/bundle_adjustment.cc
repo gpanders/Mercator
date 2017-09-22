@@ -169,4 +169,4 @@ const ceres::Solver::Summary& BundleAdjustment::Summary() const
   return summary_;
 }
 
-}
+} // namespace mercator

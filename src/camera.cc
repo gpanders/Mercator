@@ -60,6 +60,7 @@ std::vector<double>& Camera::Params() { return params_; }
 
 void Camera::SetParams(const std::vector<double>& params) { params_ = params; }
 
+// Convenience overload function that wraps the underlying implementation
 void Camera::WorldToImage(const std::vector<double> params,
                           const Eigen::Vector3d& world,
                           Eigen::Vector2d* image)

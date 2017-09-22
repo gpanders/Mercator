@@ -62,11 +62,6 @@ Eigen::Vector3d& Image::Translation() { return translation_; }
 
 void Image::SetTranslation(const Eigen::Vector3d& translation) { translation_ = translation; }
 
-Eigen::Vector3d Image::Transform(const Eigen::Vector3d& point3d)
-{
-  return rotation_ * point3d + translation_;
-}
-
 const std::vector<Point2d>& Image::Points2d() const { return points2d_; }
 
 std::vector<Point2d>& Image::Points2d() { return points2d_; }
@@ -75,6 +70,13 @@ void Image::SetPoints2d(const std::vector<Point2d>& points2d) { points2d_ = poin
 
 uint32_t Image::NumPoints2d() const { return points2d_.size(); }
 
+// Transform a 3D world point into the reference frame of this image
+Eigen::Vector3d Image::Transform(const Eigen::Vector3d& point3d)
+{
+  return rotation_ * point3d + translation_;
+}
+
+// Match a 3D world point to a 2D image point
 void Image::SetPoint3dForPoint2d(const uint32_t point2d_idx,
                                  const uint64_t point3d_id)
 {
@@ -85,4 +87,4 @@ void Image::SetPoint3dForPoint2d(const uint32_t point2d_idx,
   point2d.SetPoint3dId(point3d_id);
 }
 
-}
+} // namespace mercator

@@ -73,12 +73,26 @@ class Point3d {
   void SetCovered(const bool covered);
 
  private:
+  // The unique ID of this 3D point
   uint64_t point3d_id_;
+
+  // World coordinates of this point
   Eigen::Vector3d coords_;
+
+  // (R, G, B) color value of this point
   Eigen::Vector3ub color_;
+
+  // 3x3 uncertainty covariance matrix of this point's 3D position
   Eigen::Matrix3d covariance_;
+
+  // Scalar uncertainty value, equal to the maximum eigenvalue of the
+  // covariance matrix
   double uncertainty_;
+
+  // List of IDs corresponding to the images that observe this point
   std::vector<uint32_t> image_ids_;
+
+  // Whether or not this point passes the required criteria
   bool covered_;
 };
 

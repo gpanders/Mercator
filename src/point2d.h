@@ -49,12 +49,14 @@ class Point2d {
   void SetPoint3dId(const uint64_t point3d_id);
 
  private:
+  // Image coordinates of this point
   Eigen::Vector2d coords_;
 
+  // The unique ID of the 3D point corresponding to this point
   uint64_t point3d_id_;
 
 };
 
-}
+} // namespace mercator
 
 #endif // MERCATOR_POINT2D_H_

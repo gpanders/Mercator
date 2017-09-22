@@ -29,6 +29,7 @@
 
 namespace mercator {
 
+// Represents a physical camera (not an actual image)
 class Camera {
  public:
   Camera();
@@ -62,9 +63,16 @@ class Camera {
                            Eigen::Vector2d* image);
 
  private:
+  // This camera's unique id
   uint32_t camera_id_;
-  uint64_t width_; // px
-  uint64_t height_; // px
+
+  // Width of the camera frame in pixels
+  uint64_t width_;
+
+  // Height of the camera frame in pixels
+  uint64_t height_;
+
+  // Physical size of each pixel of the camera in mm
   double pixel_size_; // mm
 
   // Focal length, principal point, radial distortion, etc.
@@ -72,16 +80,17 @@ class Camera {
 
 };
 
-/**
- * Project a 3D point onto a 2D image plane using a given camera model
- *
- * @param params          Array of values representing the camera model
- *                        [focal_length, cx, cy, radial_distortion]
- * @param world           Array of length 3 representing the 3D Cartesian
- *                        coordinates of the world point
- * @param image           Array of length 2 representing the 2D coordinates of
- *                        the point in the image plane
- */
+// Project a 3D point onto a 2D image plane using a given camera model. The
+// inputs are the intrinsic parameters of the camera and the coordinates of the
+// 3D world point. A pointer to an array representing the 2D coordinates of the
+// image point is given and is populated with the result of the function.
+//
+// Note that this function is templated in order to work with Ceres. The input
+// parameters must also be pointers to the underlying data structure.
+//
+// Currently this function assumes a radial distortion model. This function can
+// (and probably should) be further abstracted to work with other distortion
+// models.
 template<typename T>
 void Camera::WorldToImage(const T* const params, const T* const world,
                           T* image)

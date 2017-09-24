@@ -44,8 +44,11 @@ ConfigManager::ConfigManager()
                      po::value<double>(&min_ground_sampling_distance)->required(),
                      "Ground sampling distance requirement")
                      ("print_ba_summary",
-                     po::value<short>(&print_ba_summary),
-                     "Print a summary of the bundle adjustment (0, 1, or 2)");
+                     po::value<int>(&print_ba_summary)->default_value(1),
+                     "Print a summary of the bundle adjustment (0, 1, or 2)")
+                     ("log_level",
+                     po::value<int>(&log_level)->default_value(2),
+                     "Log level (0, 1, 2, 3)");
 }
 
 bool ConfigManager::ReadConfigFile(const std::string& path)

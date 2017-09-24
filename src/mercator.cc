@@ -38,13 +38,15 @@ using namespace mercator;
 
 int main(int argc, char* argv[])
 {
+  google::InitGoogleLogging(argv[0]);
+
   if (argc != 2)
   {
     std::cerr << "Usage: " << argv[0] << " <path>" << std::endl;
     return 1;
   }
 
-  const Logger logger(Logger::LogLevel::DEBUG);
+  Logger logger;
 
   const std::string config_file = "config.ini";
 
@@ -52,9 +54,12 @@ int main(int argc, char* argv[])
 
   if (!config.ReadConfigFile(config_file))
   {
-    logger.Error("Failed to read config file: ") << config_file << std::endl;
+    logger.Error() << "Failed to read config file: " << config_file
+                   << std::endl;
     return 1;
   }
+
+  logger.SetLogLevel(static_cast<Logger::LogLevel>(config.log_level));
 
   logger.Debug(config.PrintOptions());
 
@@ -73,14 +78,15 @@ int main(int argc, char* argv[])
     auto& cameras = reader.Cameras();
     if (cameras.size() > 1)
     {
-      logger.Warn("More than one camera found! Defaulting to the first.")
-        << std::endl;
+      logger.Warn("More than one camera found! Defaulting to the first.");
     }
 
     Camera& camera = cameras.begin()->second;
 
     // This information is not provided by COLMAP so the user must supply it
     camera.SetPixelSize(config.camera_pixel_size);
+
+    std::vector<Image> virt_cameras;
 
     // Iterate over each point
     for (auto& point : reader.Points())
@@ -101,7 +107,7 @@ int main(int argc, char* argv[])
       const uint64_t point3d_id = point.second.Point3dId();
       const Eigen::Vector3d& xyz = point.second.Coords();
 
-      logger.Debug("Using point ") << point3d_id;
+      logger.Debug() << "Using point " << point3d_id << std::endl;
 
       // Otherwise, prepare for a new bundle adjustment
       BundleAdjustment ba(ba_options);
@@ -130,7 +136,7 @@ int main(int argc, char* argv[])
 
       if (!ProjectPointOntoImage(point.second, camera, &new_image))
       {
-        logger.Warn("Projecting point onto virtual image failed!") << std::endl;
+        logger.Warn("Projecting point onto virtual image failed!");
         continue;
       }
 
@@ -147,12 +153,16 @@ int main(int argc, char* argv[])
         if (std::any_of(image_ids.begin(), image_ids.end(),
               [&ba](uint32_t image_id) { return ba.HasImage(image_id); }))
         {
+          logger.Debug() << "Adding point " << other_point.second.Point3dId()
+                         << std::endl;
           ba.AddPoint(other_point.second);
         }
         // Otherwise, if the projection of this point onto our virtual camera
         // exists in the virtual camera's frame, add it to the BA
         else if (ProjectPointOntoImage(other_point.second, camera, &new_image))
         {
+          logger.Debug() << "Adding point " << other_point.second.Point3dId()
+                         << std::endl;
           ba.AddPoint(other_point.second);
         }
       }
@@ -161,6 +171,9 @@ int main(int argc, char* argv[])
       ba.AddImage(new_image);
 
       // Start the bundle adjustment
+      logger.Info() << "Starting bundle adjustment with "
+                    << ba.Points().size() << " points and "
+                    << ba.Images().size() << " images" << std::endl;
       ba.Run();
 
       // Compute covariance
@@ -193,7 +206,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    std::cout << "Something went wrong." << std::endl;
+    logger.Error("Something went wrong while trying to read COLMAP files");
     return 1;
   }
 

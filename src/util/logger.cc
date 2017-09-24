@@ -32,11 +32,23 @@ Logger::Logger(std::ostream& os, const LogLevel level)
 
 void Logger::SetLogLevel(const Logger::LogLevel level) { level_ = level; }
 
+std::ostream& Logger::Log() const
+{
+  os_ << "LOG: ";
+  return os_;
+}
+
+std::ostream& Logger::Log(const std::string& msg) const
+{
+  os_ << "LOG: " << msg << std::endl;
+  return os_;
+}
+
 std::ostream& Logger::Debug() const
 {
   if (level_ <= Logger::LogLevel::DEBUG)
   {
-    os_ << "[DEBUG] ";
+    os_ << "DEBUG: ";
     return os_;
   }
   return null_;
@@ -46,7 +58,7 @@ std::ostream& Logger::Debug(const std::string& msg) const
 {
   if (level_ <= Logger::LogLevel::DEBUG)
   {
-    os_ << "[DEBUG] " << msg;
+    os_ << "DEBUG: " << msg << std::endl;
     return os_;
   }
   return null_;
@@ -56,7 +68,7 @@ std::ostream& Logger::Info() const
 {
   if (level_ <= Logger::LogLevel::INFO)
   {
-    os_ << "[INFO] ";
+    os_ << "INFO: ";
     return os_;
   }
   return null_;
@@ -66,7 +78,7 @@ std::ostream& Logger::Info(const std::string& msg) const
 {
   if (level_ <= Logger::LogLevel::INFO)
   {
-    os_ << "[INFO] " << msg;
+    os_ << "INFO: " << msg << std::endl;
     return os_;
   }
   return null_;
@@ -76,7 +88,7 @@ std::ostream& Logger::Warn() const
 {
   if (level_ <= Logger::LogLevel::WARN)
   {
-    os_ << "[WARN] ";
+    os_ << "WARNING: ";
     return os_;
   }
   return null_;
@@ -86,7 +98,7 @@ std::ostream& Logger::Warn(const std::string& msg) const
 {
   if (level_ <= Logger::LogLevel::WARN)
   {
-    os_ << "[WARN] " << msg;
+    os_ << "WARNING: " << msg << std::endl;
     return os_;
   }
   return null_;
@@ -96,7 +108,7 @@ std::ostream& Logger::Error() const
 {
   if (level_ <= Logger::LogLevel::ERROR)
   {
-    os_ << "[ERROR] ";
+    os_ << "ERROR: ";
     return os_;
   }
   return null_;
@@ -106,7 +118,7 @@ std::ostream& Logger::Error(const std::string& msg) const
 {
   if (level_ <= Logger::LogLevel::ERROR)
   {
-    os_ << "[ERROR] " << msg;
+    os_ << "ERROR: " << msg << std::endl;
     return os_;
   }
   return null_;

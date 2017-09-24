@@ -33,16 +33,19 @@ class Logger {
  public:
   enum class LogLevel
   {
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR
+    DEBUG = 0,
+    INFO  = 1,
+    WARN  = 2,
+    ERROR = 3
   };
 
-  Logger(const LogLevel level = LogLevel::WARN);
+  Logger(const LogLevel level);
   Logger(std::ostream& os = std::cout, const LogLevel level = LogLevel::WARN);
 
   void SetLogLevel(const LogLevel level);
+
+  std::ostream& Log() const;
+  std::ostream& Log(const std::string& msg) const;
 
   std::ostream& Debug() const;
   std::ostream& Debug(const std::string& msg) const;

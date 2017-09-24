@@ -122,10 +122,9 @@ void BundleAdjustment::Run()
 
     ceres::Solve(solver_options, problem_.get(), &summary_);
   }
-
 }
 
-void BundleAdjustment::ComputeCovariance(std::vector<Point3d>* points)
+void BundleAdjustment::ComputeCovariance(const std::vector<uint64_t>& point3d_ids)
 {
   ceres::Covariance::Options covariance_options = options_.covariance_options;
   if (covariance_options.num_threads == -1)
@@ -139,8 +138,9 @@ void BundleAdjustment::ComputeCovariance(std::vector<Point3d>* points)
   ceres::Covariance covariance(covariance_options);
 
   std::vector< std::pair<const double*, const double*> > covariance_blocks;
-  for (const auto& point : *points)
+  for (const auto point3d_id : point3d_ids)
   {
+    const auto& point = points3d_.at(point3d_id);
     const double* data = point.Coords().data();
     if (problem_->HasParameterBlock(data))
     {
@@ -150,11 +150,24 @@ void BundleAdjustment::ComputeCovariance(std::vector<Point3d>* points)
 
   CHECK(covariance.Compute(covariance_blocks, problem_.get()));
 
-  for (auto& point : *points)
+  for (const auto point3d_id : point3d_ids)
   {
+    auto& point = points3d_.at(point3d_id);
     const double* data = point.Coords().data();
     covariance.GetCovarianceBlock(data, data, point.Covariance().data());
   }
+}
+
+void BundleAdjustment::ComputeCovariance()
+{
+  std::vector<uint64_t> point3d_ids;
+  point3d_ids.reserve(points3d_.size());
+  for (auto it = points3d_.begin(); it != points3d_.end(); ++it)
+  {
+    point3d_ids.push_back(it->first);
+  }
+
+  ComputeCovariance(point3d_ids);
 }
 
 void BundleAdjustment::PrintSummary(const bool print_full_report)

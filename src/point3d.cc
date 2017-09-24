@@ -29,6 +29,7 @@ namespace mercator {
 Point3d::Point3d() : point3d_id_(-1),
                      coords_(Eigen::Vector3d::Zero()),
                      color_(Eigen::Vector3ub::Zero()),
+                     covariance_(Eigen::Matrix3d::Zero()),
                      uncertainty_(-1.0),
                      covered_(false) {}
 
@@ -81,9 +82,22 @@ void Point3d::SetCovariance(const Eigen::Matrix3d& covariance)
   uncertainty_ = covariance.eigenvalues().real().maxCoeff();
 }
 
-double Point3d::Uncertainty() const { return uncertainty_; }
+double Point3d::Uncertainty() const
+{
+  return (uncertainty_ == -1.0 && !covariance_.isZero()) ?
+    covariance_.eigenvalues().real().maxCoeff()
+    :
+    uncertainty_;
+}
 
-double& Point3d::Uncertainty() { return uncertainty_; }
+double& Point3d::Uncertainty()
+{
+  if (uncertainty_ == -1.0 && !covariance_.isZero())
+  {
+    uncertainty_ = covariance_.eigenvalues().real().maxCoeff();
+  }
+  return uncertainty_;
+}
 
 void Point3d::SetUncertainty(const double uncertainty)
 {

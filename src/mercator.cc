@@ -163,6 +163,26 @@ int main(int argc, char* argv[])
       // Start the bundle adjustment
       ba.Run();
 
+      // Compute covariance
+      std::vector<uint64_t> point3d_ids = { point3d_id };
+      ba.ComputeCovariance();
+
+      const auto& post_ba_point = ba.Points().at(point3d_id);
+
+      std::cout << "Old uncertainty: " << point.second.Uncertainty() << std::endl;
+      std::cout << "New uncertainty: " << post_ba_point.Uncertainty() << std::endl;
+
+      if (post_ba_point.Uncertainty() < point.second.Uncertainty())
+      {
+        logger.Info("Adding new image to virtual cameras list");
+        virt_cameras.push_back(new_image);
+      }
+      else
+      {
+        logger.Debug("Virtual camera did not provide enough new information,"
+            " skipping...");
+      }
+
       if (config.print_ba_summary > 0)
       {
         ba.PrintSummary(config.print_ba_summary == 2);

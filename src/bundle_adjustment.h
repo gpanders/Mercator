@@ -102,7 +102,9 @@ class BundleAdjustment {
 
   void Run();
 
-  void ComputeCovariance(std::vector<Point3d>* points);
+  void ComputeCovariance();
+
+  void ComputeCovariance(const std::vector<uint64_t>& point3d_ids);
 
   void PrintSummary(const bool print_full_report);
 
